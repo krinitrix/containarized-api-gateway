@@ -1,5 +1,6 @@
 # Containerized API Gateway with Health Checks & Active/Passive Failover
 A  microservices architecture demonstrating reverse proxy routing, active-passive failover, containerized health probing, and chaos engineering simulations using Nginx, FastAPI, Django and Docker Compose.
+<img width="800" height="600" alt="Containarized_api_gateway" src="https://github.com/user-attachments/assets/fadd23f3-b142-4329-97b3-5257f5012979" />
 
 ## API Endpoints
 
