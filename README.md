@@ -10,3 +10,13 @@ A  microservices architecture demonstrating reverse proxy routing, active-passiv
 | POST   | /api/users/simulate-crash | /api/users/simulate-crash | Toggles internal state to force HTTP 503 responses.                         |
 | POST   | /api/users/restore     | /api/users/restore     | Resets internal state to healthy (200 OK).                                  |
 | GET    | /api/inventory/health     | /api/inventory/health  | Inventory service health check endpoint.
+
+
+## System Components
+
+| Component        | Technology             | Role                                                                 |
+|------------------|------------------------|----------------------------------------------------------------------|
+| API Gateway      | Nginx                  | Reverse proxy, path-based routing, load balancing, active-passive failover |
+| User Service     | FastAPI (Uvicorn)      | High-performance microservice with built-in chaos endpoints          |
+| Inventory Service| Django (Gunicorn/WSGI) | Relational CRUD microservice connected to PostgreSQL                 |
+| Containerization | Docker & Docker Compose| Multi-container orchestration, isolated bridge networking, health monitoring |
