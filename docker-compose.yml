@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: inventory_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d inventory_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  django-service:
+    build: ./django-service
+    environment:
+      - SERVER_ID=django-service
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=inventory_db
+      - DB_HOST=postgres-db
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  fastapi-primary:
+    build: ./fastapi-primary
+    environment:
+      - SERVER_ID=fastapi-primary
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  fastapi-backup:
+    build: ./fastapi-backup
+    environment:
+      - SERVER_ID=fastapi-backup
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  nginx-gateway:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - fastapi-primary
+      - fastapi-backup
+      - django-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
