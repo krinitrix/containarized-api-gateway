@@ -1,13 +1,14 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+from .views import InventoryViewSet, health_check
+
+
+router = DefaultRouter()
+router.register(r'', InventoryViewSet, basename='inventory')
+
 
 urlpatterns = [
-    # Matches: GET /api/inventory/
-    path('', views.inventory_list, name='inventory-list'),
-    
-    # Matches: GET /api/inventory/items/
-    path('items/', views.inventory_list, name='inventory-items'),
-    
-    # Matches: GET /api/inventory/health/
-    path('health/', views.health_check, name='health-check'),
+    path('health/', health_check, name='health-check'),
+    path('', include(router.urls)),
 ]
