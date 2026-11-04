@@ -7,7 +7,7 @@ app = FastAPI(title="User Service - Primary", docs_url="/docs")
 
 # Global state to control simulated health for chaos engineering
 IS_HEALTHY = True
-SERVER_ID = os.getenv("SERVER_ID", "fastapi-primary")
+SERVER_ID =  "fastapi-primary"
 SERVICE_NAME = "user-service"
 
 
