@@ -1,29 +1,36 @@
-from django.shortcuts import render
+import socket
+
+from django.db import connection
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-import socket
-# Create your views here.
+
+from .models import InventoryItem
+from .serializers import InventoryItemSerializer
+
+
+class InventoryViewSet(viewsets.ModelViewSet):
+    queryset = InventoryItem.objects.all().order_by('id')
+    serializer_class = InventoryItemSerializer
+
+
 @api_view(['GET'])
 def health_check(request):
-    return Response({
-        "status": "UP",
-        "service": "inventory-service",
-        "container_id": socket.gethostname()
-    })
-    
-@api_view(['GET'])
-def inventory_list(request):
-    items=[
-        {"id": 1, "sku": "SER-01", "name": "Cloud Node", "quantity": 12},
-        {"id": 2, "sku": "SER-02", "name": "Load Balancer", "quantity": 4},
-    ]
-    return Response (
-        {
-            'items':items,
-            'meta':{
-                "service":"inventory-service",
-                'container_id':socket.gethostname(),
-            }
-        }
-    )
-    
+    try:
+        connection.ensure_connection()
+
+        return Response({
+            "status": "UP",
+            "database": "CONNECTED",
+            "service": "inventory-service",
+            "server_id": "django-service",
+            "container_id": socket.gethostname()
+        })
+
+    except Exception:
+        return Response({
+            "status": "DOWN",
+            "database": "DISCONNECTED",
+            "service": "inventory-service",
+            "server_id": "django-service"
+        }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
